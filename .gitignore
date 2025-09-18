@@ -1,0 +1,5 @@
+# Ignore Django migration files
+*/migrations/*.py
+*/migrations/*.pyc
+# Allow __init__.py in migrations folders
+!*/migrations/__init__.py
