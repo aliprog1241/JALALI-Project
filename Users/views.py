@@ -6,21 +6,21 @@ from .models import CustomUser
 
 class BirthdayListView(ListView):
     model = CustomUser
-    template_name = 'home.html'
+    template_name = 'Users/home.html'
     context_object_name = 'users'
 
 
 class BirthdayCreateView(CreateView):
     model = CustomUser
     form_class = CustomUserForm
-    template_name = 'add_birthday.html'
+    template_name = 'Users/add_birthday.html'
     success_url = reverse_lazy('home')
 
 
 class BirthdayUpdateView(UpdateView):
     model = CustomUser
     form_class = CustomUserForm
-    template_name = 'add_birthday.html'
+    template_name = 'Users/add_birthday.html'
     success_url = reverse_lazy('home')
 
 

@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حذف کاربر</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Vazir', 'Tahoma', Arial, sans-serif;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(255, 107, 107, 0.2);
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ff6b6b, #ee5a24);
+        }
+
+        .warning-icon {
+            font-size: 64px;
+            color: #ff6b6b;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        h1 {
+            color: #333;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        h1::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, #ff6b6b, #ee5a24);
+            margin: 15px auto 0;
+            border-radius: 2px;
+        }
+
+        .warning-message {
+            background: rgba(255, 107, 107, 0.1);
+            border: 2px solid rgba(255, 107, 107, 0.2);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .warning-message::before {
+            content: '⚠️';
+            position: absolute;
+            top: -15px;
+            right: 20px;
+            background: #fff;
+            padding: 0 10px;
+            font-size: 20px;
+        }
+
+        .delete-text {
+            font-size: 16px;
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .user-info {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 4px solid #ff6b6b;
+        }
+
+        .user-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .warning-note {
+            font-size: 14px;
+            color: #777;
+            font-style: italic;
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(255, 193, 7, 0.1);
+            border-radius: 8px;
+            border-right: 3px solid #ffc107;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .delete-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            border: 2px solid transparent;
+        }
+
+        .delete-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 107, 107, 0.4);
+        }
+
+        .delete-btn:active {
+            transform: translateY(0);
+        }
+
+        .delete-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .delete-btn:hover::before {
+            left: 100%;
+        }
+
+        .cancel-btn {
+            background: #fff;
+            color: #555;
+            border: 2px solid #ddd;
+        }
+
+        .cancel-btn:hover {
+            background: #f8f9fa;
+            border-color: #bbb;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Loading state */
+        .btn.loading {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .btn.loading::after {
+            content: '';
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top: 2px solid white;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Animations */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .container {
+                margin: 10px;
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .warning-icon {
+                font-size: 48px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .user-name {
+                font-size: 18px;
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+
+        /* Focus styles for accessibility */
+        .btn:focus {
+            outline: 3px solid rgba(255, 107, 107, 0.3);
+            outline-offset: 2px;
+        }
+
+        .cancel-btn:focus {
+            outline: 3px solid rgba(0, 0, 0, 0.2);
+        }
+
+        /* Additional security warning */
+        .security-warning {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(238, 90, 36, 0.05));
+            border: 1px solid rgba(255, 107, 107, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #666;
+            text-align: right;
+        }
+
+        .countdown {
+            font-weight: bold;
+            color: #ff6b6b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="warning-icon">⚠️</div>
+
+        <h1>حذف کاربر</h1>
+
+        <div class="warning-message">
+            <div class="delete-text">
+                آیا مطمئن هستید که می‌خواهید این کاربر را حذف کنید؟
+            </div>
+
+            <div class="user-info">
+                <div class="user-name">
+                    <div class="user-avatar">
+                        {{ object.full_name|first|upper }}
+                    </div>
+                    {{ object.full_name }}
+                </div>
+                {% if object.username %}
+                    <div style="color: #777; font-size: 14px; margin-top: 5px;">
+                        نام کاربری: {{ object.username }}
+                    </div>
+                {% endif %}
+                {% if object.birthday_date %}
+                    <div style="color: #777; font-size: 14px;">
+                        تاریخ تولد: {{ object.birthday_date }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="warning-note">
+                ⚡ توجه: این عمل قابل برگشت نیست و تمام اطلاعات این کاربر برای همیشه حذف خواهد شد.
+            </div>
+        </div>
+
+        <div class="security-warning">
+            🔒 برای امنیت بیشتر، دکمه حذف پس از <span class="countdown" id="countdown">5</span> ثانیه فعال خواهد شد.
+        </div>
+
+        <form method="post" id="deleteForm">
+            {% csrf_token %}
+            <div class="action-buttons">
+                <button type="submit" class="btn delete-btn" id="deleteBtn" disabled>
+                    🗑️ بله، حذف شود
+                </button>
+                <a href="{% url 'home' %}" class="btn cancel-btn" id="cancelBtn">
+                    ↩️ لغو و بازگشت
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const deleteBtn = document.getElementById('deleteBtn');
+            const cancelBtn = document.getElementById('cancelBtn');
+            const deleteForm = document.getElementById('deleteForm');
+            const countdownEl = document.getElementById('countdown');
+            const container = document.querySelector('.container');
+
+            let countdown = 5;
+
+            // Countdown timer for security
+            const timer = setInterval(() => {
+                countdown--;
+                countdownEl.textContent = countdown;
+
+                if (countdown <= 0) {
+                    clearInterval(timer);
+                    deleteBtn.disabled = false;
+                    deleteBtn.style.opacity = '1';
+                    deleteBtn.style.cursor = 'pointer';
+
+                    // Remove security warning
+                    const securityWarning = document.querySelector('.security-warning');
+                    securityWarning.style.opacity = '0';
+                    securityWarning.style.height = '0';
+                    securityWarning.style.padding = '0';
+                    securityWarning.style.margin = '0';
+                    setTimeout(() => securityWarning.remove(), 300);
+
+                    // Add ready indicator
+                    deleteBtn.style.animation = 'pulse 2s infinite';
+                }
+            }, 1000);
+
+            // Handle form submission
+            deleteForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                // Double confirmation
+                const userName = '{{ object.full_name }}';
+                const confirmed = confirm(
+                    `⚠️ آخرین هشدار!\n\nآیا واقعاً می‌خواهید "${userName}" را حذف کنید؟\n\nاین عمل غیرقابل برگشت است!`
+                );
+
+                if (confirmed) {
+                    // Show loading state
+                    deleteBtn.innerHTML = '⏳ در حال حذف...';
+                    deleteBtn.classList.add('loading');
+                    cancelBtn.style.display = 'none';
+
+                    // Add shake animation to container
+                    container.classList.add('shake');
+
+                    // Submit form after brief delay for visual feedback
+                    setTimeout(() => {
+                        this.submit();
+                    }, 1000);
+                } else {
+                    // Reset button if cancelled
+                    deleteBtn.style.animation = 'pulse 2s infinite';
+                }
+            });
+
+            // Cancel button enhancement
+            cancelBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                // Add confirmation for cancel (optional)
+                const confirmed = confirm('آیا می‌خواهید عملیات حذف را لغو کنید؟');
+
+                if (confirmed) {
+                    // Animate out
+                    container.style.animation = 'slideOut 0.3s ease-in forwards';
+                    setTimeout(() => {
+                        window.location.href = this.href;
+                    }, 300);
+                }
+            });
+
+            // Add slide out animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideOut {
+                    to {
+                        opacity: 0;
+                        transform: translateY(-50px) scale(0.9);
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    cancelBtn.click();
+                } else if (e.key === 'Enter' && !deleteBtn.disabled) {
+                    e.preventDefault();
+                    deleteBtn.click();
+                }
+            });
+
+            // Add focus management
+            if (!deleteBtn.disabled) {
+                deleteBtn.focus();
+            } else {
+                cancelBtn.focus();
+            }
+        });
+    </script>
+</body>
+</html>
